@@ -74,6 +74,7 @@ SimpleGraph = function (elemid, data, options) {
 
   if (this.options.init == true) {
     var SC = d3.select(this.chart).append("svg")
+      .attr('id', 'plot')
       .attr("width", this.cx)
       .attr("height", this.cy);
 
@@ -142,6 +143,7 @@ SimpleGraph = function (elemid, data, options) {
   }));
 
   this.vis.append("svg")
+    .attr('id', 'plot')
     .attr("top", 0)
     .attr("left", 0)
     .attr("width", this.size.width)
