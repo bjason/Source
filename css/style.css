@@ -113,7 +113,7 @@ p.title {
 }
 
 .bar8 input:focus {
-    width: 250px;
+    width: 200px;
     z-index: 1;
     border-bottom: 2px solid #F9F0DA;
 }
@@ -159,12 +159,12 @@ div .title {
     border-radius: 5px;
     padding: 5px;
     opacity: 0.99;
-    z-index: 100;
+    z-index: 10000000000;
     text-align: left;
     font-family: Constantia, Baskerville;
 }
 
-.axispanel {
+.attrPanel {
     position: fixed;
     width: 150px;
     height: auto;
@@ -178,6 +178,8 @@ div .title {
     z-index: 100;
     text-align: left;
     font-family: Constantia, Baskerville;
+    font-size: 8pt;
+    line-height: 4px;
 }
 
 .infolabel h1 {
@@ -235,4 +237,8 @@ div .title {
     align-items: center;
     justify-content: center;
     /* border: 2px solid; */
+}
+
+.addDiv {
+    float: left;
 }

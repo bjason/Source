@@ -1,6 +1,6 @@
 var dropSize = 75,
   dropR = 10,
-  axisOptions = {};
+  axis_options = {};
 
 InterAxis = function (elemid, data, options) {
   var self = this;
@@ -9,6 +9,18 @@ InterAxis = function (elemid, data, options) {
   this.cy = this.chart.clientHeight;
   this.options = options || {};
   this.points = data;
+
+  this.padding = {
+    "top": 10,
+    "right": 30,
+    "bottom": 110,
+    "left": 712
+  };
+
+  this.size = {
+    "width": this.cx - this.padding.left - this.padding.right,
+    "height": this.cy - this.padding.top - this.padding.bottom
+  };
 
   this.options.xmax = d3.max(data, function (d) {
     return +d["x"];
@@ -23,21 +35,9 @@ InterAxis = function (elemid, data, options) {
     return +d["y"];
   }) || options.ymin || 0;
 
-  this.padding = {
-    "top": 10,
-    "right": 30,
-    "bottom": 110,
-    "left": 712
-  };
-
-  this.size = {
-    "width": this.cx - this.padding.left - this.padding.right,
-    "height": this.cy - this.padding.top - this.padding.bottom
-  };
-
-  axisOptions = {
+  axis_options = {
     "X": {
-      "width": this.padding.left - 200,
+      "width": this.padding.left - 250,
       "height": this.size.height / 2 - 50,
       "padding": {
         top: this.padding.top + this.size.height / 2 + 100,
@@ -47,7 +47,7 @@ InterAxis = function (elemid, data, options) {
       }
     },
     "Y": {
-      "width": this.padding.left - 200,
+      "width": this.padding.left - 250,
       "height": this.size.height / 2 - 50,
       "padding": {
         top: this.padding.top,
@@ -65,18 +65,12 @@ InterAxis = function (elemid, data, options) {
     .range([0, this.size.width])
     .nice();
 
-  // drag x-axis logic
-  this.downx = Math.NaN;
-
   // y-scale (inverted domain)
   this.y = d3.scaleLinear()
     .domain([this.options.ymax, this.options.ymin])
     .nice()
     .range([0, this.size.height])
     .nice();
-
-  // drag y-axis logic
-  this.downy = Math.NaN;
 
   this.dragged = this.selected = null;
   this.dropped = null;
@@ -342,38 +336,6 @@ InterAxis.prototype.mousemove = function () {
 
       self.update();
     };
-    if (!isNaN(self.downx)) {
-      d3.select('body').style("cursor", "ew-resize");
-      var rupx = self.x.invert(p[0]),
-        xaxis1 = self.x.domain()[0],
-        xaxis2 = self.x.domain()[1],
-        xextent = xaxis2 - xaxis1;
-      if (rupx != 0) {
-        var changex, new_domain;
-        changex = self.downx / rupx;
-        new_domain = [xaxis1, xaxis1 + (xextent * changex)];
-        self.x.domain(new_domain);
-        self.redraw()();
-      }
-      d3.event.preventDefault();
-      d3.event.stopPropagation();
-    };
-    if (!isNaN(self.downy)) {
-      d3.select('body').style("cursor", "ns-resize");
-      var rupy = self.y.invert(p[1]),
-        yaxis1 = self.y.domain()[1],
-        yaxis2 = self.y.domain()[0],
-        yextent = yaxis2 - yaxis1;
-      if (rupy != 0) {
-        var changey, new_domain;
-        changey = self.downy / rupy;
-        new_domain = [yaxis1 + (yextent * changey), yaxis1];
-        self.y.domain(new_domain);
-        self.redraw()();
-      }
-      d3.event.preventDefault();
-      d3.event.stopPropagation();
-    }
   }
 };
 
@@ -385,19 +347,7 @@ InterAxis.prototype.mouseup = function () {
       return true;
     };
     d3.select('body').style("cursor", "auto");
-    d3.select('body').style("cursor", "auto");
-    if (!isNaN(self.downx)) {
-      self.redraw()();
-      self.downx = Math.NaN;
-      d3.event.preventDefault();
-      d3.event.stopPropagation();
-    };
-    if (!isNaN(self.downy)) {
-      self.redraw()();
-      self.downy = Math.NaN;
-      d3.event.preventDefault();
-      d3.event.stopPropagation();
-    }
+
     if (self.dragged) {
       self.dragged.y = self.dragged.oldy;
       self.dragged.x = self.dragged.oldx;
@@ -469,14 +419,14 @@ InterAxis.prototype.mouseup = function () {
               }
               this.remove();
               if (thisdropzone == "XL" || thisdropzone == "XH") {
-                console.log("update X");
+                // console.log("update X");
                 if (self.dropzone["XH"].length * self.dropzone["XL"].length > 0) {
                   updategraph("X");
                 } else {
                   updatebycb("X", attr[initdim1]);
                 }
               } else if (thisdropzone == "YL" || thisdropzone == "YH") {
-                console.log("update Y");
+                // console.log("update Y");
                 if (self.dropzone["YH"].length * self.dropzone["YL"].length > 0) {
                   updategraph("Y");
                 } else {
@@ -489,10 +439,10 @@ InterAxis.prototype.mouseup = function () {
         }
       }
       if ((self.dropped == "XL" && self.dropzone["XH"].length > 0) || (self.dropped == "XH" && self.dropzone["XL"].length > 0)) {
-        console.log("update X");
+        // console.log("update X");
         updategraph("X");
       } else if ((self.dropped == "YL" && self.dropzone["YH"].length > 0) || (self.dropped == "YH" && self.dropzone["YL"].length > 0)) {
-        console.log("update Y");
+        // console.log("update Y");
         updategraph("Y");
       }
       self.dragged = null;
@@ -502,14 +452,14 @@ InterAxis.prototype.mouseup = function () {
   }
 }
 
-updategraph = function (axistobeupdated, givenV, givenVchanged) {
+updategraph = function (axistoUpdate, givenV, givenVchanged) {
   data = graph.points;
   if (givenV == undefined) {
     var x1 = {},
       x0 = {};
-    var high = graph.dropzone[axistobeupdated + "H"],
-      low = graph.dropzone[axistobeupdated + "L"];
-    for (var i = 0; i < attrNo; i++) {
+    var high = graph.dropzone[axistoUpdate + "H"],
+      low = graph.dropzone[axistoUpdate + "L"];
+    for (var i = 0; i < attrLen; i++) {
       x1[attr[i]] = d3.mean(low, function (d) {
         return d["coord"][attr[i]]
       });
@@ -522,7 +472,7 @@ updategraph = function (axistobeupdated, givenV, givenVchanged) {
     for (var i = 0; i < high.length; i++) {
       for (var j = 0; j < low.length; j++) {
         var tmpelt = {};
-        for (var k = 0; k < attrNo; k++) {
+        for (var k = 0; k < attrLen; k++) {
           tmpelt[attr[k]] = high[i]["coord"][attr[k]] - low[j]["coord"][attr[k]];
         }
         hlpair[hlpair.length] = tmpelt;
@@ -530,21 +480,21 @@ updategraph = function (axistobeupdated, givenV, givenVchanged) {
     }
 
     // calculate new attr
-    console.log("------------------------ Getting new axis vector ------------------------------")
+    // console.log("Getting new axis vector")
     var V = {},
       Vchanged = {},
       Verror = {},
       norm = 0;
-    for (var i = 0; i < attrNo; i++) {
+    for (var i = 0; i < attrLen; i++) {
       V[attr[i]] = 0;
       Vchanged[attr[i]] = 0;
     }
-    for (var i = 0; i < attrNo; i++) {
+    for (var i = 0; i < attrLen; i++) {
       V[attr[i]] = x0[attr[i]] - x1[attr[i]];
       norm = norm + (x0[attr[i]] - x1[attr[i]]) * (x0[attr[i]] - x1[attr[i]]);
     }
     var VV = [];
-    for (var i = 0; i < attrNo; i++) {
+    for (var i = 0; i < attrLen; i++) {
       VV[i] = {
         "attr": attr[i],
         "value": V[attr[i]]
@@ -553,11 +503,9 @@ updategraph = function (axistobeupdated, givenV, givenVchanged) {
     VV.sort(function (a, b) {
       return Math.abs(b["value"]) - Math.abs(a["value"]);
     });
-    for (var i = 0; i < VV.length; i++) {
-      // V[VV[i]["attr"]] = i<10 ? VV[i]["value"] : 0;
-    }
+    for (var i = 0; i < VV.length; i++) {}
     norm = Math.sqrt(norm);
-    for (var i = 0; i < attrNo; i++) {
+    for (var i = 0; i < attrLen; i++) {
       V[attr[i]] = V[attr[i]] / norm;
       if (hlpair.length > 1) {
         Verror[attr[i]] = d3.deviation(hlpair, function (d) {
@@ -572,11 +520,11 @@ updategraph = function (axistobeupdated, givenV, givenVchanged) {
       Vchanged = givenVchanged,
       Verror = {},
       norm = 0;
-    for (var i = 0; i < attrNo; i++) {
+    for (var i = 0; i < attrLen; i++) {
       norm = norm + (V[attr[i]]) * (V[attr[i]]);
     }
     norm = Math.sqrt(norm);
-    for (var i = 0; i < attrNo; i++) {
+    for (var i = 0; i < attrLen; i++) {
       V[attr[i]] = V[attr[i]] / norm;
       Verror[attr[i]] = 0;
     }
@@ -586,38 +534,36 @@ updategraph = function (axistobeupdated, givenV, givenVchanged) {
   var newxname = 'x' + index;
   graph.points.forEach(function (d, i) {
     d["coord"][newxname] = 0;
-    for (var j = 0; j < attrNo; j++) {
+    for (var j = 0; j < attrLen; j++) {
       d["coord"][newxname] = d["coord"][newxname] + V[attr[j]] * d["coord"][attr[j]];
     }
-
   });
 
   d3.select("#SC").remove();
-  d3.select("#" + axistobeupdated).remove();
+  d3.select("#" + axistoUpdate).remove();
   data.forEach(function (d) {
-    d[axistobeupdated == "X" ? "x" : "y"] = d["coord"][newxname];
+    d[axistoUpdate == "X" ? "x" : "y"] = d["coord"][newxname];
   });
+
   graph = new InterAxis("scplot", data, {
-    "xlabel": axistobeupdated == "X" ? newxname : graph.options.xlabel,
-    "ylabel": axistobeupdated == "X" ? graph.options.ylabel : newxname,
+    "xlabel": axistoUpdate == "X" ? newxname : graph.options.xlabel,
+    "ylabel": axistoUpdate == "X" ? graph.options.ylabel : newxname,
     "init": false,
     "dropzone": graph.dropzone
   });
+
   var VV = [];
-  for (var i = 0; i < attrNo; i++) {
+  for (var i = 0; i < attrLen; i++) {
     VV[i] = {
       "attr": attr[i],
       "value": V[attr[i]],
-      "changed": Vchanged[attr[i]],
       "error": Verror[attr[i]]
     };
   }
-  if (axistobeupdated == "X") {
-    X = VV;
-    xaxis = new axis("#scplot", VV, axistobeupdated, axisOptions[axistobeupdated]);
+  if (axistoUpdate == "X") {
+    xaxis = new axis("#scplot", VV, axistoUpdate, axis_options[axistoUpdate]);
   } else {
-    Y = VV;
-    yaxis = new axis("#scplot", VV, axistobeupdated, axisOptions[axistobeupdated])
+    yaxis = new axis("#scplot", VV, axistoUpdate, axis_options[axistoUpdate])
   }
 };
 
@@ -632,18 +578,14 @@ InterAxis.prototype.onZoom = function () {
     self.x = d3.event.transform.rescaleX(self.x);
     self.y = d3.event.transform.rescaleY(self.y);
 
-    //console.log(self.x.domain());
-
     self.redraw()();
   }
 }
 
 InterAxis.prototype.redraw = function () {
   var self = this;
-  // console.log(self.x.domain());
   return function () {
     var tx = function (d) {
-        console.log("scale:" + self.k);
         return "translate(" + self.x(d) + ")";
       },
       ty = function (d) {
@@ -651,8 +593,6 @@ InterAxis.prototype.redraw = function () {
       },
       fx = self.x.tickFormat(10),
       fy = self.y.tickFormat(10);
-
-    console.log(self.x.domain());
 
     // Regenerate x-ticks…
     var gx = self.vis.selectAll("g.x")
@@ -676,15 +616,12 @@ InterAxis.prototype.redraw = function () {
       .attr("dy", "1em")
       .attr("text-anchor", "middle")
       .text(fx)
-      .style("cursor", "ew-resize")
       .on("mouseover", function (d) {
         d3.select(this).style("font-weight", "bold");
       })
       .on("mouseout", function (d) {
         d3.select(this).style("font-weight", "normal");
       })
-      .on("mousedown.drag", self.xaxis_drag())
-      .on("touchstart.drag", self.xaxis_drag());
 
     gx.exit().remove();
 
@@ -711,41 +648,14 @@ InterAxis.prototype.redraw = function () {
       .attr("dy", ".35em")
       .attr("text-anchor", "end")
       .text(fy)
-      .style("cursor", "ns-resize")
       .on("mouseover", function (d) {
         d3.select(this).style("font-weight", "bold");
       })
       .on("mouseout", function (d) {
         d3.select(this).style("font-weight", "normal");
       })
-      .on("mousedown.drag", self.yaxis_drag())
-      .on("touchstart.drag", self.yaxis_drag());
 
     gy.exit().remove();
-
-    // self.plot.call(d3.zoom().on("zoom", self.onZoom()));
     self.update();
   }
 }
-
-InterAxis.prototype.xaxis_drag = function () {
-  var self = this;
-  return function (d) {
-    document.onselectstart = function () {
-      return false;
-    };
-    var p = d3.mouse(self.vis.node());
-    self.downx = self.x.invert(p[0]);
-  }
-};
-
-InterAxis.prototype.yaxis_drag = function (d) {
-  var self = this;
-  return function (d) {
-    document.onselectstart = function () {
-      return false;
-    };
-    var p = d3.mouse(self.vis.node());
-    self.downy = self.y.invert(p[1]);
-  }
-};

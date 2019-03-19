@@ -1,6 +1,6 @@
 var dropSize = 80,
   dropR = 20,
-  axisOptions = {};
+  axis_options = {};
 
 registerKeyboardHandler = function (callback) {
   var callback = callback;
@@ -42,7 +42,7 @@ InterAxis = function (elemid, data, options) {
     "height": this.cy - this.padding.top - this.padding.bottom
   };
 
-  axisOptions = {
+  axis_options = {
     "X": {
       "width": this.size.width - dropSize * 2,
       "height": this.padding.bottom - 40,
@@ -627,10 +627,10 @@ updategraph = function (axistobeupdated, givenV, givenVchanged) {
   }
   if (axistobeupdated == "X") {
     X = VV;
-    xaxis = new axis("#graph", VV, axistobeupdated, axisOptions[axistobeupdated]);
+    xaxis = new axis("#graph", VV, axistobeupdated, axis_options[axistobeupdated]);
   } else {
     Y = VV;
-    yaxis = new axis("#graph", VV, axistobeupdated, axisOptions[axistobeupdated])
+    yaxis = new axis("#graph", VV, axistobeupdated, axis_options[axistobeupdated])
   }
 };
 
@@ -868,10 +868,10 @@ updatebycb = function (axistobeupdated, selectedattr) {
   });
   if (axistobeupdated == "X") {
     X = V;
-    xaxis = new axis("#graph", V, axistobeupdated, axisOptions[axistobeupdated]);
+    xaxis = new axis("#graph", V, axistobeupdated, axis_options[axistobeupdated]);
   } else {
     Y = V;
-    yaxis = new axis("#graph", V, axistobeupdated, axisOptions[axistobeupdated]);
+    yaxis = new axis("#graph", V, axistobeupdated, axis_options[axistobeupdated]);
   }
 }
 

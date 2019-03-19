@@ -109,44 +109,6 @@ function populateList(data) {
                 return res;
             }).enter().append('td')
             .html(d => '<p>' + d + '</p>');
-
-        // .attr('id', d => {
-        //     var _data = []
-        //     var columns = ["key", "value"];
-        //     let len = Object.keys(d['raw']).length;
-        //     for (var i = 0; i < len; i++) {
-        //         var item = {
-        //             "key": null,
-        //             "value": null
-        //         };
-        //         item["key"] = attr[i];
-        //         item["value"] = d["raw"][attr[i]];
-        //         _data[i] = item;
-        //     }
-        //     data.push(_data);
-        // })
-
-        // create a cell in each row for each column
-        // var cells = rows.selectAll("td")
-        //     .data(function (row) {
-        //         return columns.map(function (column) {
-        //             return {
-        //                 column: column,
-        //                 value: row[column]
-        //             };
-        //         });
-        //     })
-        //     .enter()
-        //     .append("td")
-        //     .html(function (d) {
-        //         return d.value;
-        //     });
-
-
-        // ld.append('p')
-        //     .append('i')
-        //     .text(d => d.artist)
-        //     .style('font-size', '120%')
     }
 }
 
@@ -155,6 +117,7 @@ var currData = []
 
 function searchList() {
     window.scrollTo(0, 0);
+    d3.select('#error_info').text('')
 
     var input = document.getElementById('searchContent'),
         filter = input.value.toUpperCase();

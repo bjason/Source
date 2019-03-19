@@ -1,4 +1,6 @@
 axis = function (elemid, vector, XorY, options) {
+  var addedAttr = [],
+    notAddedAttr = [];
   var margin = {
       top: 30,
       right: 40,
@@ -19,6 +21,23 @@ axis = function (elemid, vector, XorY, options) {
   });
   data = data.slice(0, 15); // get top 15 attrs
 
+  data.forEach(d => {
+    if (d["value"] < 0) {
+      addedAttr.push(d);
+    } else if (d["value"] > 0) {
+      addedAttr.push(d);
+    } else {
+      notAddedAttr.push(d);
+    }
+  });
+
+  // height = addedAttr.length * 15;
+
+  // if (addedAttr.length == 1)
+  //   var x = d3.scaleLinear() // x axis of bar chart, weights of attrs
+  //     .domain([0, addedAttr[0]['value']]).nice()
+  //     .range([0, width]);
+  // else
   var x = d3.scaleLinear() // x axis of bar chart, weights of attrs
     .domain(d3.extent(data, function (d) {
       return d["value"];
@@ -32,23 +51,18 @@ axis = function (elemid, vector, XorY, options) {
     }));
 
   var xAxis = d3.axisTop(x);
-  if (XorY == "Y") {
-    xAxis.ticks(5);
-  } // bar chart of Y do not have enough space to hold many ticks
+  xAxis.ticks(5);
 
   var svg = d3.select(elemid).select("svg").append("g")
     .attr("id", XorY)
     .attr("transform", "translate(" + (padding.left + margin.left) + "," + (padding.top + margin.top) + ")");
 
   var dragBar = svg.selectAll(".bar")
+    // .data(addedAttr)
     .data(data)
     .enter().append("rect")
     .attr("class", function (d) {
-      if (d["changed"] == 1) {
-        return d["value"] < 0 ? "bar negChanged" : "bar posChanged";
-      } else {
-        return d["value"] < 0 ? "bar negative" : "bar positive";
-      }
+      return d["value"] < 0 ? "bar negative" : "bar positive";
     })
     .attr("x", function (d) {
       return x(Math.min(0, d["value"]));
@@ -69,6 +83,7 @@ axis = function (elemid, vector, XorY, options) {
     });
 
   var dragBarTop = svg.selectAll(".dummy")
+    // .data(addedAttr)
     .data(data)
     .enter().append("circle")
     .attr("class", "dummy dragBarTop")
@@ -81,7 +96,7 @@ axis = function (elemid, vector, XorY, options) {
       }
     })
     .attr("cy", function (d) {
-      return y(d["attr"]) + 4;
+      return y(d["attr"]) + 5;
     })
     // .attr("width", 2)
     .attr("r", y.bandwidth() / 3)
@@ -89,9 +104,6 @@ axis = function (elemid, vector, XorY, options) {
       d3.select(this).attr("cx", d3.mouse(document.getElementById(XorY))[0]); // mouse position x
 
       d3.select("#" + XorY).selectAll('.bar[y="' + y(d["attr"]) + '"]')
-        .attr("class", function (d) {
-          return x.invert(d3.mouse(document.getElementById(XorY))[0]) < 0 ? "bar negChanged" : "bar posChanged";
-        })
         .attr("x", function (d) {
           return x.invert(d3.mouse(document.getElementById(XorY))[0]) < 0 ? d3.mouse(document.getElementById(XorY))[0] : x(0);
         })
@@ -106,20 +118,61 @@ axis = function (elemid, vector, XorY, options) {
         });
       d["value"] = x.invert(d3.mouse(document.getElementById(XorY))[0]);
       if (graph.dropzone[XorY + "H"].length + graph.dropzone[XorY + "L"].length > 0) {
-        d["changed"] = 1;
+        // d["changed"] = 1;
       }
     }).on('end', function (d, i) {
       console.log("dragend");
       var V = {},
         Vchanged = {};
-      for (var i = 0; i < attrNo; i++) {
+      for (var i = 0; i < attrLen; i++) {
         var tmp = data[i] || vector[i];
         V[vector[i]["attr"]] = tmp["value"];
         Vchanged[vector[i]["attr"]] = tmp["changed"];
       }
-      console.log(V);
+      // console.log(V);
       updategraph(XorY, V, Vchanged);
     }));
+
+  var panelOpen = false;
+
+  // svg.append('foreignObject')
+  //   .attr('x', width / 2 - 150)
+  //   .style('z-index', '10000000000')
+  //   .attr('y', height)
+  //   .attr('height', 300)
+  //   .attr('width', 300)
+  //   .append('xhtml:button')
+  //   .attr('class', 'round_btn')
+  //   .attr('id', 'btn' + XorY)
+  //   .style('left', 150)
+  //   .text('+')
+  //   .on('click', d => {
+  //     if (panelOpen) {
+  //       d3.select(".attrPanel").remove();
+  //       d3.select('#btn' + XorY).text('+');
+  //     } else {
+  //       let div = d3.select('#btn' + XorY)
+  //         .html('&times;')
+  //         .append('xhtml:div')
+  //         .attr("class", "attrPanel")
+  //         .style("left", 80 + "px")
+  //         .style("top", 20 + "px")
+  //         .append('xhtml:div')
+  //         .selectAll('div')
+  //         .data(notAddedAttr).enter()
+  //         .append('xhtml:div')
+
+  //       // .attr('class', 'addDiv')
+
+  //       div.append('xhtml:p')
+  //         .text(d => d.attr)
+  //         .style('cursor', 'pointer')
+  //         .on('click', d => {
+  //           console.log('here');
+  //         })
+  //     }
+  //     panelOpen = !panelOpen;
+  //   })
 
   svg.append("g")
     .attr("class", "x axis")
@@ -133,13 +186,13 @@ axis = function (elemid, vector, XorY, options) {
     .attr("y2", height);
 
   svg.append("g").selectAll("text")
+    // .data(addedAttr)
     .data(data)
     .enter().append("text")
     .text(function (d) {
       return d["attr"];
     })
     .attr("x", function (d) {
-      // if (d["value"] < 0) { return  x(Math.min(0, d["value"])) - 5;}
       if (d["value"] < 0) {
         return x(0) + 5;
       } else {
