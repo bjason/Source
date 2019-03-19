@@ -33,17 +33,23 @@ axis = function (elem_id, vector, XorY, options) {
   height = displayedAttr.length * 15;
 
   var x;
-  if (displayedAttr.length == 1)
-    x = d3.scaleLinear() // x axis of bar chart, weights of attrs
-    .domain([0, displayedAttr[0]['value']]).nice()
-    .range([0, width]);
-  else {
+  if (displayedAttr.length == 1) {
+    if (displayedAttr[0]['value'] > 0)
+      x = d3.scaleLinear() // x axis of bar chart, weights of attrs
+      .domain([0, displayedAttr[0]['value']]).nice()
+      .range([0, width]);
+    else
+      x = d3.scaleLinear() // x axis of bar chart, weights of attrs
+      .domain([displayedAttr[0]['value'], 0]).nice()
+      .range([0, width]);
+  } else {
     let extent = d3.extent(displayedAttr, function (d) {
       return d["value"];
     });
-    let max = extent[extent.length - 1]
+    let max = Math.max(extent[extent.length - 1], 0);
+    let min = Math.min(extent[0], 0) ;
     x = d3.scaleLinear() // x axis of bar chart, weights of attrs
-      .domain([0, max]).nice()
+      .domain([min, max]).nice()
       .range([0, width]); // extent: find the max and min value; nice: modify the range to avoid fraction
   }
 
