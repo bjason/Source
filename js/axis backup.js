@@ -17,7 +17,7 @@ axis = function (elemid, vector, XorY, options) {
       return Math.abs(b["value"]) - Math.abs(a["value"]);
     }
   });
-  data = data.slice(0, 15); // get top 15 attrs
+  data = data.slice(0, 10); // get top 10 attrs
 
   var x = d3.scaleLinear() // x axis of bar chart, weights of attrs
     .domain(d3.extent(data, function (d) {
@@ -32,11 +32,11 @@ axis = function (elemid, vector, XorY, options) {
     }));
 
   var xAxis = d3.axisTop(x);
-  if (XorY == "Y") {
-    xAxis.ticks(5);
-  } // bar chart of Y do not have enough space to hold many ticks
+  xAxis.ticks(5);
 
-  var svg = d3.select(elemid).select("svg").append("g")
+  var svg = d3.select(elemid).select("svg")
+    // .append('xhtml:div')
+    .append("g")
     .attr("id", XorY)
     .attr("transform", "translate(" + (padding.left + margin.left) + "," + (padding.top + margin.top) + ")");
 
@@ -54,7 +54,7 @@ axis = function (elemid, vector, XorY, options) {
       return x(Math.min(0, d["value"]));
     })
     .attr("y", function (d) {
-      return y(d["attr"]);
+      return y(d["attr"]) + 5;
     })
     .attr("width", function (d) {
       if (d["value"] == 0) {
@@ -72,7 +72,6 @@ axis = function (elemid, vector, XorY, options) {
     .data(data)
     .enter().append("circle")
     .attr("class", "dummy dragBarTop")
-    // .attr('d', 'M-5.5,-5.5v10l6,5.5l6,-5.5v-10z')
     .attr("cx", function (d) {
       if (d["value"] > 0) {
         return x(d["value"]);
@@ -81,34 +80,42 @@ axis = function (elemid, vector, XorY, options) {
       }
     })
     .attr("cy", function (d) {
-      return y(d["attr"]) + 4;
+      return y(d["attr"]) + 12;
     })
     // .attr("width", 2)
     .attr("r", y.bandwidth() / 3)
-    .call(d3.drag().on('drag', function (d, i) {
-      d3.select(this).attr("cx", d3.mouse(document.getElementById(XorY))[0]); // mouse position x
-
-      d3.select("#" + XorY).selectAll('.bar[y="' + y(d["attr"]) + '"]')
-        .attr("class", function (d) {
-          return x.invert(d3.mouse(document.getElementById(XorY))[0]) < 0 ? "bar negChanged" : "bar posChanged";
-        })
-        .attr("x", function (d) {
-          return x.invert(d3.mouse(document.getElementById(XorY))[0]) < 0 ? d3.mouse(document.getElementById(XorY))[0] : x(0);
-        })
-        .attr("width", function (d) {
-          if (x.invert(d3.mouse(document.getElementById(XorY))[0]) == 0) {
-            return 2;
-          } else if (x.invert(d3.mouse(document.getElementById(XorY))[0]) > 0) {
-            return Math.abs(d3.mouse(document.getElementById(XorY))[0] - x(0) + 2);
-          } else {
-            return Math.abs(d3.mouse(document.getElementById(XorY))[0] - x(0));
-          }
-        });
-      d["value"] = x.invert(d3.mouse(document.getElementById(XorY))[0]);
-      if (graph.dropzone[XorY + "H"].length + graph.dropzone[XorY + "L"].length > 0) {
-        d["changed"] = 1;
-      }
-    }).on('end', function (d, i) {
+    .call(d3.drag().on(
+      'drag',
+      function (d, i) {
+        d3.select(this).attr("x", d3.mouse(document.getElementById(XorY))[0]); // mouse position x
+        d3.select("#" + XorY).selectAll('.bar[y="' + y(d["attr"]) + '"]')
+          // .attr("class", function(d) { return x.invert(d3.mouse(document.getElementById(XorY))[0]) < 0 ? "bar negative" : "bar positive"; })
+          .attr("class", function (d) {
+            return x.invert(
+              d3.mouse(
+                document.getElementById(XorY))[0]) < 0 ? "bar negChanged" : "bar posChanged";
+          })
+          .attr("x", function (d) {
+            return x.invert(
+              d3.mouse(
+                document.getElementById(XorY))[0]) < 0 ? d3.mouse(
+              document.getElementById(XorY))[0] : x(0);
+          })
+          .attr("width", function (d) {
+            if (x.invert(
+                d3.mouse(document.getElementById(XorY))[0]) == 0) {
+              return 2;
+            } else if (x.invert(d3.mouse(document.getElementById(XorY))[0]) > 0) {
+              return Math.abs(d3.mouse(document.getElementById(XorY))[0] - x(0) + 2);
+            } else {
+              return Math.abs(d3.mouse(document.getElementById(XorY))[0] - x(0));
+            }
+          });
+        d["value"] = x.invert(d3.mouse(document.getElementById(XorY))[0]);
+        if (graph.dropzone[XorY + "H"].length + graph.dropzone[XorY + "L"].length > 0) {
+          d["changed"] = 1;
+        }
+      }).on('end', function (d, i) {
       console.log("dragend");
       var V = {},
         Vchanged = {};

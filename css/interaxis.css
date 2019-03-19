@@ -1,53 +1,74 @@
 /* 
 	General Page Styles 
 */
-body {
-  font: 12px sans-serif;
-}
 
 svg {
-  font: 10px sans-serif;
+  font: 10px Constantia, Baskerville;
 }
 
 #scplot {
-  background-color: #e0e0e0;
-  width: 1030px;
-  height: 725px; 
-  /*height: 650px; */
+  background-color: #ffffff;
+  width: 100%;
+  height: 700px;
 }
 
-#SC .axis { font-size: 1.5em; }
+#SC .axis {
+  font-size: 1.5em;
+}
 
 #DROP rect {
-  fill: #74c476; 
-  stroke: #2ca02c;
-  stroke-width: 3;
-  stroke-opacity:0.6;
+  stroke-width: 2;
+  stroke-opacity: 0.5;
 }
+
+#DROP rect.positive {
+  fill: #81e985;
+  stroke: #2ca02c;
+}
+
+#DROP rect.negative {
+  fill: #e98881;
+  stroke: #a02c2c;
+}
+
 #DROP rect:hover {
   opacity: 0.5;
 }
 
 .bar.positive {
-  fill: steelblue;
+  fill: #2ca02c;
+  opacity: 0.7;
+  padding-bottom: 1px;
 }
+
 .bar.negative {
-  fill: brown;
+  fill: #a02c2c;
+  opacity: 0.7;
+  padding-bottom: 1px;
 }
+
 .bar.posChanged {
-  fill: steelblue;
+  fill: #2ca02c;
   stroke: black;
   stroke-width: 2;
+  opacity: 0.7;
+  padding-bottom: 1px;
 }
+
 .bar.negChanged {
-  fill: brown;
+  fill:  #a02c2c;
   stroke: black;
   stroke-width: 2;
+  opacity: 0.7;
+  padding-bottom: 1px;
 }
+
 .dummy.dragBarTop {
-  fill: black;
-  opacity: 0.1;
-  cursor: ew-resize; 
+  fill: white;
+  opacity: 1;
+  cursor: ew-resize;
+  fill-opacity: 0.8;
+  stroke: grey;
 }
 
 .errorbar {
@@ -56,17 +77,20 @@ svg {
   opacity: 1;
 }
 
-td, th {
+td,
+th {
   padding: 1px 4px;
-  word-wrap:break-word;
+  word-wrap: break-word;
 }
+
 th {
   white-space: nowrap;
 }
+
 table {
   font: 14px sans-serif;
-  border-collapse:collapse; 
-  table-layout:fixed; 
+  border-collapse: collapse;
+  table-layout: fixed;
   width: 360px;
 }
 
@@ -74,56 +98,79 @@ table {
 ul {
   list-style-type: none;
   margin: 0.5em 0em 0.5em 0em;
-  width: 100%; }
-  ul li {
-    display: table-cell;
-    vertical-align: middle;
-    margin: 0em;
-    padding: 0em 1em; }
+  width: 100%;
+}
+
+ul li {
+  display: table-cell;
+  vertical-align: middle;
+  margin: 0em;
+  padding: 0em 1em;
+}
 
 circle {
-  fill: #1f77b4;
-  stroke: #1f77b4;
+  fill: #63cbd3;
+  stroke: #3388c5;
   fill-opacity: 0.2;
   stroke-width: 1.2px;
   stroke-opacity: 0.5;
-  cursor: move; }
-  circle.dropped {
-    fill: #2ca02c;
-    stroke: #2ca02c; 
-    fill-opacity: 1;}
-  circle.highlighted {
-    fill: #2ca02c;
-    stroke: black;
-    stroke-width: 2.5px; 
-    fill-opacity: 1;}
-  circle:hover {
-    stroke: black; 
-    stroke-width: 2.5px;
-    fill-opacity: 1;}
-
-#pcplot {
-  background-color: #efefef;
-  /*width: 960px;*/
-  /*height: 300px; */
+  cursor: move;
 }
 
-#pcplot .axis { font-size: 1.3em; }
+circle.positive_dropped {
+  fill: #81e985;
+  stroke: #2ca02c;
+  fill-opacity: 0.5;
+}
 
+circle.negative_dropped {
+  fill: #e98881;
+  stroke: #a02c2c;
+  fill-opacity: 0.5;
+}
 
+circle.highlighted {
+  stroke: black;
+  stroke-width: 2.5px;
+  fill-opacity: 1;
+}
 
-.background path {
+circle.searchRes {
+  fill: #dd9001;
+  stroke: #9e8203;
+  stroke-width: 2.5px;
+}
+
+circle:hover {
+  stroke: black;
+  stroke-width: 2.5px;
+  fill-opacity: 1;
+}
+
+#SC rect {
+  fill: #f6f6f6;
+}
+
+#SC line {
+  stroke: #cccccc;
+}
+
+/* #pcplot .axis {
+  font-size: 1.3em;
+} */
+
+/* .background line {
   fill: none;
-  stroke: #ddd;
+  stroke: #dddddd;
   shape-rendering: crispEdges;
 }
 
 .foreground path {
   fill: none;
   stroke: steelblue;
-}
+} */
 
-.brush .extent {
+/* .brush .extent {
   fill-opacity: .3;
   stroke: #fff;
   shape-rendering: crispEdges;
@@ -134,14 +181,14 @@ circle {
   fill: none;
   stroke: #000;
   shape-rendering: crispEdges;
-}
+} */
 
-.axis text {
+/* .axis text {
   text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
   cursor: move;
-}
+} */
 
 .button {
-  width:400px;
-  height:40px;
+  width: 400px;
+  height: 40px;
 }

@@ -1,40 +1,33 @@
-var dropSize = 80,
-  dropR = 20,
+var dropSize = 75,
+  dropR = 10,
   axisOptions = {};
-
-registerKeyboardHandler = function (callback) {
-  var callback = callback;
-  d3.select(window).on("keydown", callback);
-};
 
 InterAxis = function (elemid, data, options) {
   var self = this;
   this.chart = document.getElementById(elemid);
-  this.cx = this.chart.clientWidth;
+  this.cx = this.chart.clientWidth * 0.9;
   this.cy = this.chart.clientHeight;
   this.options = options || {};
   this.points = data;
 
-  console.log(this.options);
-
   this.options.xmax = d3.max(data, function (d) {
     return +d["x"];
-  }) || options.xmax || 30;
+  }) || options.xmax || 1;
   this.options.xmin = d3.min(data, function (d) {
     return +d["x"];
   }) || options.xmin || 0;
   this.options.ymax = d3.max(data, function (d) {
     return +d["y"];
-  }) || options.ymax || 10;
+  }) || options.ymax || 1;
   this.options.ymin = d3.min(data, function (d) {
     return +d["y"];
   }) || options.ymin || 0;
 
   this.padding = {
-    "top": this.options.title ? 40 : 20,
+    "top": 10,
     "right": 30,
-    "bottom": this.options.xlabel ? 230 : 10,
-    "left": this.options.ylabel ? 300 : 45
+    "bottom": 110,
+    "left": 712
   };
 
   this.size = {
@@ -44,22 +37,22 @@ InterAxis = function (elemid, data, options) {
 
   axisOptions = {
     "X": {
-      "width": this.size.width - dropSize * 2,
-      "height": this.padding.bottom - 40,
+      "width": this.padding.left - 200,
+      "height": this.size.height / 2 - 50,
       "padding": {
-        top: this.padding.top + this.size.height + 40,
+        top: this.padding.top + this.size.height / 2 + 100,
         right: 0,
-        left: this.padding.left + dropSize + 10,
+        left: 80,
         bottom: 0
       }
     },
     "Y": {
-      "width": this.padding.left - dropSize,
-      "height": this.size.height - dropSize * 2,
+      "width": this.padding.left - 200,
+      "height": this.size.height / 2 - 50,
       "padding": {
-        top: this.padding.top + dropSize,
+        top: this.padding.top,
         right: 0,
-        left: 15,
+        left: 80,
         bottom: 0
       }
     }
@@ -67,16 +60,16 @@ InterAxis = function (elemid, data, options) {
 
   // x-scale
   this.x = d3.scaleLinear()
-    // this.x = d3.scale.log()
     .domain([this.options.xmin, this.options.xmax])
-    .range([0, this.size.width]);
+    .nice()
+    .range([0, this.size.width])
+    .nice();
 
   // drag x-axis logic
   this.downx = Math.NaN;
 
   // y-scale (inverted domain)
   this.y = d3.scaleLinear()
-    // this.y = d3.scale.log()
     .domain([this.options.ymax, this.options.ymin])
     .nice()
     .range([0, this.size.height])
@@ -105,29 +98,55 @@ InterAxis = function (elemid, data, options) {
 
   if (this.options.init == true) {
     var SC = d3.select(this.chart).append("svg")
-      .attr('id', 'plot')
+      .attr('id', 'svgplot')
       .attr("width", this.cx)
       .attr("height", this.cy);
 
     var drp = SC.append("g").attr("id", "DROP");
-    drp.append("g").attr("id", "YH").append("rect").attr("x", this.padding.left - dropSize * 1.5).attr("y", this.padding.top);
-    drp.append("g").attr("id", "YL").append("rect").attr("x", this.padding.left - dropSize * 1.5).attr("y", this.cy - this.padding.bottom - dropSize);
-    drp.append("g").attr("id", "XL").append("rect").attr("x", this.padding.left).attr("y", this.cy - this.padding.bottom + dropSize * 0.5);
-    drp.append("g").attr("id", "XH").append("rect").attr("x", this.cx - this.padding.right - dropSize).attr("y", this.cy - this.padding.bottom + dropSize * 0.5);
-    drp.selectAll("rect").attr("width", dropSize).attr("height", dropSize).attr("rx", dropR).attr("ry", dropR);
+    drp.append("g")
+      .attr("id", "YH")
+      .append("rect")
+      .attr("class", "positive")
+      .attr("x", this.padding.left - dropSize * 1.4)
+      .attr("y", this.padding.top)
+      .append('svg:title')
+      .text('drop cars here to create new axis');
+    drp.append("g")
+      .attr("id", "YL")
+      .append("rect")
+      .attr("class", "negative")
+      .attr("x", this.padding.left - dropSize * 1.4)
+      .attr("y", this.cy - this.padding.bottom - dropSize)
+      .append('svg:title')
+      .text('drop cars here to create new axis');
+    drp.append("g")
+      .attr("id", "XL")
+      .append("rect")
+      .attr("class", "negative")
+      .attr("x", this.padding.left)
+      .attr("y", this.cy - this.padding.bottom + dropSize * 0.3)
+      .append('svg:title')
+      .text('drop cars here to create new axis');
+    drp.append("g")
+      .attr("id", "XH")
+      .append("rect")
+      .attr("class", "positive")
+      .attr("x", this.cx - this.padding.right - dropSize)
+      .attr("y", this.cy - this.padding.bottom + dropSize * 0.3)
+      .append('svg:title')
+      .text('drop cars here to create new axis');
+    drp.selectAll("rect")
+      .attr("width", dropSize)
+      .attr("height", dropSize)
+      .attr("rx", dropR)
+      .attr("ry", dropR);
 
     var div = document.getElementById("btnYc"); // btn y clear
-    div.style.left = this.padding.left - dropSize + 20;
-    div.style.top = this.padding.top + this.size.height + 0.5 * dropSize;
+    div.style.left = 240;
+    div.style.top = this.padding.top + this.size.height / 2;
     div = document.getElementById("btnXc"); // btn x clear
-    div.style.left = this.padding.left - dropSize + 20;
-    div.style.top = this.padding.top + this.size.height + 1 * dropSize;
-    div = document.getElementById("btnYs"); // btn y save
-    div.style.left = this.padding.left - dropSize - 35;
-    div.style.top = this.padding.top + this.size.height + 0.5 * dropSize;
-    div = document.getElementById("btnXs"); // btn x save
-    div.style.left = this.padding.left - dropSize - 35;
-    div.style.top = this.padding.top + this.size.height + 1 * dropSize;
+    div.style.left = 240;
+    div.style.top = this.padding.top + this.size.height / 2 + 0.5 * dropSize;
 
     d3.select("#cbY") // combo box y
       .selectAll("option")
@@ -152,11 +171,13 @@ InterAxis = function (elemid, data, options) {
         return d;
       });
     div = document.getElementById("cbY");
-    div.style.left = this.padding.left - dropSize - 175;
-    div.style.top = this.padding.top + this.size.height + 0.5 * dropSize;
+    div.style.left = 100;
+    // div.style.left = this.padding.left - dropSize - 220;
+    div.style.top = this.padding.top + this.size.height / 2;
     div = document.getElementById("cbX");
-    div.style.left = this.padding.left - dropSize - 175;;
-    div.style.top = this.padding.top + this.size.height + 1 * dropSize;
+    div.style.left = 100;
+    // div.style.left = this.padding.left - dropSize - 220;;
+    div.style.top = this.padding.top + this.size.height / 2 + 0.5 * dropSize;
   } else {
     var SC = d3.select(this.chart).select("svg")
       .attr("width", this.cx)
@@ -169,53 +190,15 @@ InterAxis = function (elemid, data, options) {
   this.plot = this.vis.append("rect")
     .attr("width", this.size.width)
     .attr("height", this.size.height)
-    .style("fill", "#EEEEEE")
     .attr("pointer-events", "all")
-  // .on("mousedown.drag", self.plot_drag())
-  // .on("touchstart.drag", self.plot_drag())
-  // this.plot.call(d3.zoom().x(this.x).y(this.y).on("zoom", this.redraw()));
-  this.plot.call(d3.zoom().on("zoom", function () {
-    d3.event.transform.x = this.x;
-    d3.event.transform.y = this.y;
-    this.redraw();
-  }));
+    .call(d3.zoom().on("zoom", self.onZoom()))
 
   this.vis.append("svg")
+    .attr('id', 'plot')
     .attr("top", 0)
     .attr("left", 0)
     .attr("width", this.size.width)
-    .attr("height", this.size.height)
-    .attr("viewBox", "0 0 " + (this.size.width) + " " + (this.size.height));
-
-  // add Chart Title
-  if (this.options.title) {
-    this.vis.append("text")
-      .attr("class", "axis")
-      .text(this.options.title)
-      .attr("x", this.size.width / 2)
-      .attr("dy", "-0.8em")
-      .style("text-anchor", "middle");
-  }
-
-  // Add the x-axis label
-  if (this.options.xlabel) {
-    this.vis.append("text")
-      .attr("class", "axis")
-      .text(this.options.xlabel)
-      .attr("x", this.size.width / 2)
-      .attr("y", this.size.height)
-      .attr("dy", "2.4em")
-      .style("text-anchor", "middle");
-  }
-
-  // add y-axis label
-  if (this.options.ylabel) {
-    this.vis.append("g").append("text")
-      .attr("class", "axis")
-      .text(this.options.ylabel)
-      .style("text-anchor", "middle")
-      .attr("transform", "translate(" + -40 + " " + this.size.height / 2 + ") rotate(-90)");
-  }
+    .attr("height", this.size.height);
 
   d3.select(this.chart)
     .on("mousemove.drag", self.mousemove())
@@ -233,7 +216,7 @@ InterAxis = function (elemid, data, options) {
 InterAxis.prototype.plot_drag = function () {
   var self = this;
   return function () {
-    registerKeyboardHandler(self.keydown());
+    // registerKeyboardHandler(self.keydown());
     d3.select('body').style("cursor", "move");
     if (d3.event.altKey) {
       var p = d3.mouse(self.vis.node());
@@ -265,34 +248,33 @@ InterAxis.prototype.update = function () {
     .data(this.points);
 
   circle.enter().append("circle")
-    // .attr("class", function(d) { return d === self.selected ? "selected" : d.indropzone ? "dropped" : null; })
     .attr("class", function (d) {
-      return d.indropzone ? "dropped" : null;
+      return d.indropzone == 1 ? "positive_dropped" : d.indropzone == -1 ? "negative_dropped" : null;
     })
-    .attr('id', d => d.Name)
+    .attr("id", d => "circle" + d.id)
     .attr("cx", function (d) {
       return self.x(d["x"]);
     })
     .attr("cy", function (d) {
       return self.y(d["y"]);
     })
-    .attr("r", 7.0)
+    .attr("r", 8.0)
     .style("cursor", "resize")
     .on("mouseover", function (d) {
-      hoverOnCell(d)
+      hoverOnCell(d);
       d3.select("#DROP").selectAll("circle").filter(function (c) {
         return c == d;
-      }).attr("class", "highlighted");
+      }).attr("class", function (d) {
+        return d.indropzone == 1 ? "highlighted positive_dropped" : d.indropzone == -1 ? "highlighted negative_dropped" : "highlighted";
+      });
     })
     .on("mouseout", function (d) {
       d3.select("#DROP").selectAll("circle").filter(function (c) {
         return c == d;
       }).attr("class", null);
+      hoverOutCell(d);
     })
-    .on("click", function (d) {
-      sglclick(d)
-    })
-    //      .on("dblclick", function(d){dblclick(d)})
+    .on("mousemove", moveTruliaLabel)
     .on("mousedown.drag", self.datapoint_drag())
     .on("touchstart.drag", self.datapoint_drag());
 
@@ -302,7 +284,7 @@ InterAxis.prototype.update = function () {
 
   circle
     .attr("class", function (d) {
-      return d.indropzone ? "dropped" : null;
+      return d.indropzone == 1 ? "positive_dropped" : d.indropzone == -1 ? "negative_dropped" : null;
     })
     .attr("cx", function (d) {
       return self.x(d.x);
@@ -319,17 +301,10 @@ InterAxis.prototype.update = function () {
   }
 }
 
-sglclick = function (d) {
-  if (x0 != d) {
-    x0old = x0;
-    x0 = d;
-  }
-};
-
 InterAxis.prototype.datapoint_drag = function () {
   var self = this;
   return function (d) {
-    registerKeyboardHandler(self.keydown());
+    // registerKeyboardHandler(self.keydown());
     document.onselectstart = function () {
       return false;
     };
@@ -346,7 +321,6 @@ InterAxis.prototype.mousemove = function () {
   return function () {
     var p = d3.mouse(self.vis.node());
     var t = d3.event.changedTouches;
-    // console.log(p);
 
     if (self.dragged) {
       // self.dragged.y = self.y.invert(Math.max(0, Math.min(self.size.height, p[1])));
@@ -429,7 +403,14 @@ InterAxis.prototype.mouseup = function () {
       self.dragged.x = self.dragged.oldx;
 
       if (self.dropped) {
-        self.dragged.indropzone = true;
+        if (self.dropped == "XH" || self.dropped == "YH") {
+          self.dragged.indropzone = 1;
+        } else if (self.dropped == "XL" || self.dropped == "YL") {
+          self.dragged.indropzone = -1;
+        } else {
+          self.dragged.indropzone = 0;
+        }
+
         var count = 0;
         for (var i = 0; i < self.dropzone[self.dropped].length; i++) {
           if (self.dropzone[self.dropped][i]["Name"] == self.dragged["Name"]) {
@@ -453,7 +434,7 @@ InterAxis.prototype.mouseup = function () {
             .attr("cy", function (d, i) {
               return cy + dist * Math.sin(Math.PI * 2 * i / num);
             })
-            .attr("r", 7.0)
+            .attr("r", 8.0)
             .on("mouseover", function (d) {
               hoverOnCell(d);
               tmpclass = d3.select("#SC").selectAll("circle").filter(function (c) {
@@ -461,7 +442,9 @@ InterAxis.prototype.mouseup = function () {
               }).attr("class");
               d3.select("#SC").selectAll("circle").filter(function (c) {
                 return c == d;
-              }).attr("class", "highlighted");
+              }).attr("class", function (d) {
+                return d.indropzone == 1 ? "highlighted positive_dropped" : d.indropzone == -1 ? "highlighted negative_dropped" : "highlighted";
+              });
             })
             .on("mouseout", function (d) {
               d3.select("#SC").selectAll("circle").filter(function (c) {
@@ -481,19 +464,26 @@ InterAxis.prototype.mouseup = function () {
                   return c == d;
                 });
               if (inotherdropzone.length == 0) {
-                d.indropzone = false;
+                d.indropzone = 0;
                 tmpclass = null;
               }
               this.remove();
-              console.log(self.dropzone);
-              if ((thisdropzone == "XL" || thisdropzone == "XH") && self.dropzone["XH"].length * self.dropzone["XL"].length > 0) {
+              if (thisdropzone == "XL" || thisdropzone == "XH") {
                 console.log("update X");
-                updategraph("X");
-              } else if ((thisdropzone == "YL" || thisdropzone == "YH") && self.dropzone["YH"].length * self.dropzone["YL"].length > 0) {
+                if (self.dropzone["XH"].length * self.dropzone["XL"].length > 0) {
+                  updategraph("X");
+                } else {
+                  updatebycb("X", attr[initdim1]);
+                }
+              } else if (thisdropzone == "YL" || thisdropzone == "YH") {
                 console.log("update Y");
-                updategraph("Y");
+                if (self.dropzone["YH"].length * self.dropzone["YL"].length > 0) {
+                  updategraph("Y");
+                } else {
+                  updatebycb("Y", attr[initdim2]);
+                }
               } else {
-                self.redraw()();
+                self.redraw();
               }
             })
         }
@@ -577,7 +567,6 @@ updategraph = function (axistobeupdated, givenV, givenVchanged) {
         Verror[attr[i]] = 0;
       }
     }
-    console.log("------------------------ Calculating new attr ------------------------------")
   } else {
     var V = givenV,
       Vchanged = givenVchanged,
@@ -591,7 +580,6 @@ updategraph = function (axistobeupdated, givenV, givenVchanged) {
       V[attr[i]] = V[attr[i]] / norm;
       Verror[attr[i]] = 0;
     }
-    console.log("------------------------ Calculating new attr ------------------------------")
   }
 
   index = index + 1;
@@ -603,14 +591,13 @@ updategraph = function (axistobeupdated, givenV, givenVchanged) {
     }
 
   });
-  console.log("------------------------ Done ------------------------------")
 
   d3.select("#SC").remove();
   d3.select("#" + axistobeupdated).remove();
   data.forEach(function (d) {
     d[axistobeupdated == "X" ? "x" : "y"] = d["coord"][newxname];
   });
-  graph = new InterAxis("graph", data, {
+  graph = new InterAxis("scplot", data, {
     "xlabel": axistobeupdated == "X" ? newxname : graph.options.xlabel,
     "ylabel": axistobeupdated == "X" ? graph.options.ylabel : newxname,
     "init": false,
@@ -627,45 +614,45 @@ updategraph = function (axistobeupdated, givenV, givenVchanged) {
   }
   if (axistobeupdated == "X") {
     X = VV;
-    xaxis = new axis("#graph", VV, axistobeupdated, axisOptions[axistobeupdated]);
+    xaxis = new axis("#scplot", VV, axistobeupdated, axisOptions[axistobeupdated]);
   } else {
     Y = VV;
-    yaxis = new axis("#graph", VV, axistobeupdated, axisOptions[axistobeupdated])
+    yaxis = new axis("#scplot", VV, axistobeupdated, axisOptions[axistobeupdated])
   }
 };
 
-InterAxis.prototype.keydown = function () {
+InterAxis.prototype.onZoom = function () {
   var self = this;
   return function () {
-    if (!self.selected) return;
-    switch (d3.event.keyCode) {
-      case 8: // backspace
-      case 46:
-        { // delete
-          var i = self.points.indexOf(self.selected);
-          self.points.splice(i, 1);
-          self.selected = self.points.length ? self.points[i > 0 ? i - 1 : 0] : null;
-          self.update();
-          break;
-        }
-    }
+    var xAxisScale = d3.scaleLinear()
+      .domain([-10, -20])
+      .range([0, 10]);
+
+    var new_xScale = d3.event.transform.rescaleX(xAxisScale);
+    self.x = d3.event.transform.rescaleX(self.x);
+    self.y = d3.event.transform.rescaleY(self.y);
+
+    //console.log(self.x.domain());
+
+    self.redraw()();
   }
-};
+}
 
 InterAxis.prototype.redraw = function () {
   var self = this;
+  // console.log(self.x.domain());
   return function () {
     var tx = function (d) {
-        return "translate(" + self.x(d) + ",0)";
+        console.log("scale:" + self.k);
+        return "translate(" + self.x(d) + ")";
       },
       ty = function (d) {
         return "translate(0," + self.y(d) + ")";
       },
-      stroke = function (d) {
-        return d ? "#ccc" : "#666";
-      },
       fx = self.x.tickFormat(10),
       fy = self.y.tickFormat(10);
+
+    console.log(self.x.domain());
 
     // Regenerate x-ticks…
     var gx = self.vis.selectAll("g.x")
@@ -679,10 +666,9 @@ InterAxis.prototype.redraw = function () {
       .attr("class", "x")
       .attr("transform", tx);
 
-    // gxe.append("line")
-    //   .attr("stroke", stroke)
-    //   .attr("y1", 0)
-    //   .attr("y2", self.size.height);
+    gxe.append("line")
+      .attr("y1", 0)
+      .attr("y2", self.size.height);
 
     gxe.append("text")
       .attr("class", "axis")
@@ -715,10 +701,9 @@ InterAxis.prototype.redraw = function () {
       .attr("transform", ty)
       .attr("background-fill", "#FFEEB6");
 
-    // gye.append("line")
-    //   .attr("stroke", stroke)
-    //   .attr("x1", 0)
-    //   .attr("x2", self.size.width);
+    gye.append("line")
+      .attr("x1", 0)
+      .attr("x2", self.size.width);
 
     gye.append("text")
       .attr("class", "axis")
@@ -737,7 +722,8 @@ InterAxis.prototype.redraw = function () {
       .on("touchstart.drag", self.yaxis_drag());
 
     gy.exit().remove();
-    self.plot.call(d3.zoom().on("zoom", self.redraw()));
+
+    // self.plot.call(d3.zoom().on("zoom", self.onZoom()));
     self.update();
   }
 }
@@ -763,146 +749,3 @@ InterAxis.prototype.yaxis_drag = function (d) {
     self.downy = self.y.invert(p[1]);
   }
 };
-
-// function tabulate(dataitem, option) {
-//   var op = option || "no";
-//   if (op == "click") { return; var tid = "#datapanel2"; }
-//   else { var tid = "#datapanel"; }
-
-//   d3.select(tid).selectAll("table").remove();
-
-//   var columns = [dataitem["Name"], ""];
-
-//   var table = d3.select(tid).append("table")
-//     .attr("style", "margin-left: 5px"),
-//     thead = table.append("thead"),
-//     tbody = table.append("tbody");
-
-//   // append the header row
-//   thead.append("tr")
-//     .selectAll("th")
-//     .data(columns)
-//     .enter()
-//     .append("th")
-//     .text(function (column) { return column; });
-
-//   var data = [];
-//   columns = ["key", "value"];
-//   for (var i = 0; i < attrNo; i++) {
-//     var item = { "key": null, "value": null };
-//     item["key"] = attr[i];
-//     item["value"] = dataitem["raw"][attr[i]];
-//     data[i] = item;
-//   }
-
-//   // create a row for each object in the data
-//   var rows = tbody.selectAll("tr")
-//     .data(data)
-//     .enter()
-//     .append("tr");
-
-//   // create a cell in each row for each column
-//   var cells = rows.selectAll("td")
-//     .data(function (row) {
-//       return columns.map(function (column) {
-//         return { column: column, value: row[column] };
-//       });
-//     })
-//     .enter()
-//     .append("td")
-//     .html(function (d) { return d.value; });
-
-//   return table;
-// }
-
-clearDropzone = function (axistobeupdated) {
-  data = graph.points;
-  graph.dropzone[axistobeupdated + "L"] = [];
-  graph.dropzone[axistobeupdated + "H"] = [];
-  var inotherdropzone = graph.dropzone.XH.concat(graph.dropzone.XL, graph.dropzone.YH, graph.dropzone.YL);
-  data.forEach(function (d) {
-    d.indropzone = false;
-    inotherdropzone.forEach(function (c) {
-      if (c == d) {
-        d.indropzone = true;
-        return;
-      }
-    });
-  });
-  d3.select("#" + axistobeupdated + "L").selectAll("circle").remove();
-  d3.select("#" + axistobeupdated + "H").selectAll("circle").remove();
-
-  document.getElementById("cb" + axistobeupdated).selectedIndex = axistobeupdated == "X" ? initdim1 : initdim2;
-  updatebycb(axistobeupdated, axistobeupdated == "X" ? attr[initdim1] : attr[initdim2]);
-
-  console.log(graph.dropzone);
-}
-
-updatebycb = function (axistobeupdated, selectedattr) {
-  data = graph.points;
-  var V = [],
-    newxname = selectedattr;
-  for (var i = 0; i < attrNo; i++) {
-    V[i] = {
-      "attr": attr[i],
-      "value": attr[i] == selectedattr ? 1 : 0,
-      "error": 0
-    };
-  }
-  for (var i = 0; i < attr2.length; i++) {
-    if (attr2[i]["attr"] == selectedattr) {
-      V = attr2[i]["vector"];
-    }
-  }
-
-  d3.select("#SC").remove();
-  d3.select("#" + axistobeupdated).remove();
-  data.forEach(function (d) {
-    d[axistobeupdated == "X" ? "x" : "y"] = d["coord"][newxname];
-  });
-  graph = new InterAxis("graph", data, {
-    "xlabel": axistobeupdated == "X" ? newxname : graph.options.xlabel,
-    "ylabel": axistobeupdated == "X" ? graph.options.ylabel : newxname,
-    "init": axistobeupdated,
-    "dropzone": graph.dropzone
-  });
-  if (axistobeupdated == "X") {
-    X = V;
-    xaxis = new axis("#graph", V, axistobeupdated, axisOptions[axistobeupdated]);
-  } else {
-    Y = V;
-    yaxis = new axis("#graph", V, axistobeupdated, axisOptions[axistobeupdated]);
-  }
-}
-
-saveAxis = function (axistobeupdated) {
-  var newxname = axistobeupdated == "X" ? graph.options.xlabel : graph.options.ylabel;
-  var count = 0;
-  for (var i = 0; i < attr2.length; i++) {
-    if (attr2[i]["attr"] == newxname) {
-      count = count + 1;
-      break;
-    }
-  }
-  for (var i = 0; i < attr.length; i++) {
-    if (attr[i] == newxname) {
-      count = count + 1;
-      break;
-    }
-  }
-  if (count == 0) {
-    addNewAxis(newxname, axistobeupdated == "X" ? X : Y);
-    setTimeout(function () {
-      document.getElementById("cb" + axistobeupdated).selectedIndex = attrNo + attr2.length - 1;
-    }, 3);
-  }
-}
-
-addNewAxis = function (newxname, newaxisvector) {
-  attr2[attr2.length] = {
-    "attr": newxname,
-    "vector": newaxisvector
-  };
-  d3.select("#cbY").append("option").attr("value", newxname).text(newxname);
-  d3.select("#cbX").append("option").attr("value", newxname).text(newxname);
-}
