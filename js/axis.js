@@ -1,6 +1,10 @@
-axis = function (elemid, vector, XorY, options) {
-  var addedAttr = [],
-    notAddedAttr = [];
+var panelOpen = {
+  'X': false,
+  'Y': false
+};
+
+axis = function (elem_id, vector, XorY, options) {
+  var displayedAttr = [];
   var margin = {
       top: 30,
       right: 40,
@@ -19,47 +23,46 @@ axis = function (elemid, vector, XorY, options) {
       return Math.abs(b["value"]) - Math.abs(a["value"]);
     }
   });
-  data = data.slice(0, 15); // get top 15 attrs
+  data = data.slice(0, 12); // get top 12 attrs
 
   data.forEach(d => {
-    if (d["value"] < 0) {
-      addedAttr.push(d);
-    } else if (d["value"] > 0) {
-      addedAttr.push(d);
-    } else {
-      notAddedAttr.push(d);
-    }
+    if (d["value"] != 0 || panelOpen[XorY])
+      displayedAttr.push(d);
   });
 
-  // height = addedAttr.length * 15;
+  height = displayedAttr.length * 15;
 
-  // if (addedAttr.length == 1)
-  //   var x = d3.scaleLinear() // x axis of bar chart, weights of attrs
-  //     .domain([0, addedAttr[0]['value']]).nice()
-  //     .range([0, width]);
-  // else
-  var x = d3.scaleLinear() // x axis of bar chart, weights of attrs
-    .domain(d3.extent(data, function (d) {
+  var x;
+  if (displayedAttr.length == 1)
+    x = d3.scaleLinear() // x axis of bar chart, weights of attrs
+    .domain([0, displayedAttr[0]['value']]).nice()
+    .range([0, width]);
+  else {
+    let extent = d3.extent(displayedAttr, function (d) {
       return d["value"];
-    })).nice()
-    .range([0, width]); // extent: find the max and min value; nice: modify the range to avoid fraction
+    });
+    let max = extent[extent.length - 1]
+    x = d3.scaleLinear() // x axis of bar chart, weights of attrs
+      .domain([0, max]).nice()
+      .range([0, width]); // extent: find the max and min value; nice: modify the range to avoid fraction
+  }
 
   var y = d3.scaleBand() // y axis of bar chart, names of attrs
     .rangeRound([0, height], .2)
-    .domain(data.map(function (d) {
+    .domain(displayedAttr.map(function (d) {
       return d["attr"]
     }));
 
   var xAxis = d3.axisTop(x);
   xAxis.ticks(5);
 
-  var svg = d3.select(elemid).select("svg").append("g")
+  var svg = d3.select(elem_id).select("svg").append("g")
     .attr("id", XorY)
     .attr("transform", "translate(" + (padding.left + margin.left) + "," + (padding.top + margin.top) + ")");
 
   var dragBar = svg.selectAll(".bar")
-    // .data(addedAttr)
-    .data(data)
+    .data(displayedAttr)
+    // .data(data)
     .enter().append("rect")
     .attr("class", function (d) {
       return d["value"] < 0 ? "bar negative" : "bar positive";
@@ -83,8 +86,8 @@ axis = function (elemid, vector, XorY, options) {
     });
 
   var dragBarTop = svg.selectAll(".dummy")
-    // .data(addedAttr)
-    .data(data)
+    .data(displayedAttr)
+    // .data(data)
     .enter().append("circle")
     .attr("class", "dummy dragBarTop")
     // .attr('d', 'M-5.5,-5.5v10l6,5.5l6,-5.5v-10z')
@@ -133,46 +136,51 @@ axis = function (elemid, vector, XorY, options) {
       updategraph(XorY, V, Vchanged);
     }));
 
-  var panelOpen = false;
+  svg.append('foreignObject')
+    .attr('x', width / 2 - 150)
+    .style('z-index', '10000000000')
+    .attr('y', height)
+    .attr('height', 300)
+    .attr('width', 300)
+    .append('xhtml:button')
+    .attr('class', 'round_btn')
+    .attr('id', 'btn' + XorY)
+    .style('left', 150)
+    .html(() => {
+      if (!panelOpen[XorY]) {
+        return '+';
+      } else {
+        return '&times;';
+      }
+    })
+    .on('click', d => {
+      panelOpen[XorY] = !panelOpen[XorY];
 
-  // svg.append('foreignObject')
-  //   .attr('x', width / 2 - 150)
-  //   .style('z-index', '10000000000')
-  //   .attr('y', height)
-  //   .attr('height', 300)
-  //   .attr('width', 300)
-  //   .append('xhtml:button')
-  //   .attr('class', 'round_btn')
-  //   .attr('id', 'btn' + XorY)
-  //   .style('left', 150)
-  //   .text('+')
-  //   .on('click', d => {
-  //     if (panelOpen) {
-  //       d3.select(".attrPanel").remove();
-  //       d3.select('#btn' + XorY).text('+');
-  //     } else {
-  //       let div = d3.select('#btn' + XorY)
-  //         .html('&times;')
-  //         .append('xhtml:div')
-  //         .attr("class", "attrPanel")
-  //         .style("left", 80 + "px")
-  //         .style("top", 20 + "px")
-  //         .append('xhtml:div')
-  //         .selectAll('div')
-  //         .data(notAddedAttr).enter()
-  //         .append('xhtml:div')
+      var value = {},
+        err = {};
+      vector.forEach(datum => {
+        value[datum['attr']] = datum['value'];
+        err[datum['attr']] = datum['error'];
+      });
+      updateAxis(value, err, XorY, options);
 
-  //       // .attr('class', 'addDiv')
+      //   .append('xhtml:div')
+      //   .attr("class", "attrPanel")
+      //   .style("left", 80 + "px")
+      //   .style("top", 20 + "px")
+      //   .append('xhtml:div')
+      //   .selectAll('div')
+      //   .data(notdisplayedAttr).enter()
+      //   .append('xhtml:div')
 
-  //       div.append('xhtml:p')
-  //         .text(d => d.attr)
-  //         .style('cursor', 'pointer')
-  //         .on('click', d => {
-  //           console.log('here');
-  //         })
-  //     }
-  //     panelOpen = !panelOpen;
-  //   })
+      // div.append('xhtml:p')
+      //   .text(d => d.attr)
+      //   .style('cursor', 'pointer')
+      //   .on('click', d => {
+      //     console.log('here');
+      //   })
+
+    })
 
   svg.append("g")
     .attr("class", "x axis")
@@ -186,8 +194,8 @@ axis = function (elemid, vector, XorY, options) {
     .attr("y2", height);
 
   svg.append("g").selectAll("text")
-    // .data(addedAttr)
-    .data(data)
+    .data(displayedAttr)
+    // .data(data)
     .enter().append("text")
     .text(function (d) {
       return d["attr"];

@@ -52,7 +52,7 @@ function populateList(data) {
             .style('margin-left', '0%')
 
         listdiv.append('img')
-            .attr('src', 'data/car.png')
+            .attr('src', 'img/car.png')
             .attr('height', 120)
             .attr('width', 120)
             .style('margin-left', '10%')

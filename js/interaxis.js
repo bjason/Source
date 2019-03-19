@@ -1,6 +1,4 @@
-var dropSize = 75,
-  dropR = 10,
-  axis_options = {};
+var dropzone_size = 75;
 
 InterAxis = function (elemid, data, options) {
   var self = this;
@@ -8,7 +6,7 @@ InterAxis = function (elemid, data, options) {
   this.cx = this.chart.clientWidth * 0.9;
   this.cy = this.chart.clientHeight;
   this.options = options || {};
-  this.points = data;
+  this.data_points = data;
 
   this.padding = {
     "top": 10,
@@ -101,7 +99,7 @@ InterAxis = function (elemid, data, options) {
       .attr("id", "YH")
       .append("rect")
       .attr("class", "positive")
-      .attr("x", this.padding.left - dropSize * 1.4)
+      .attr("x", this.padding.left - dropzone_size * 1.4)
       .attr("y", this.padding.top)
       .append('svg:title')
       .text('drop cars here to create new axis');
@@ -109,8 +107,8 @@ InterAxis = function (elemid, data, options) {
       .attr("id", "YL")
       .append("rect")
       .attr("class", "negative")
-      .attr("x", this.padding.left - dropSize * 1.4)
-      .attr("y", this.cy - this.padding.bottom - dropSize)
+      .attr("x", this.padding.left - dropzone_size * 1.4)
+      .attr("y", this.cy - this.padding.bottom - dropzone_size)
       .append('svg:title')
       .text('drop cars here to create new axis');
     drp.append("g")
@@ -118,29 +116,29 @@ InterAxis = function (elemid, data, options) {
       .append("rect")
       .attr("class", "negative")
       .attr("x", this.padding.left)
-      .attr("y", this.cy - this.padding.bottom + dropSize * 0.3)
+      .attr("y", this.cy - this.padding.bottom + dropzone_size * 0.3)
       .append('svg:title')
       .text('drop cars here to create new axis');
     drp.append("g")
       .attr("id", "XH")
       .append("rect")
       .attr("class", "positive")
-      .attr("x", this.cx - this.padding.right - dropSize)
-      .attr("y", this.cy - this.padding.bottom + dropSize * 0.3)
+      .attr("x", this.cx - this.padding.right - dropzone_size)
+      .attr("y", this.cy - this.padding.bottom + dropzone_size * 0.3)
       .append('svg:title')
       .text('drop cars here to create new axis');
     drp.selectAll("rect")
-      .attr("width", dropSize)
-      .attr("height", dropSize)
-      .attr("rx", dropR)
-      .attr("ry", dropR);
+      .attr("width", dropzone_size)
+      .attr("height", dropzone_size)
+      .attr("rx", 10)
+      .attr("ry", 10);
 
     var div = document.getElementById("btnYc"); // btn y clear
     div.style.left = 240;
     div.style.top = this.padding.top + this.size.height / 2;
     div = document.getElementById("btnXc"); // btn x clear
     div.style.left = 240;
-    div.style.top = this.padding.top + this.size.height / 2 + 0.5 * dropSize;
+    div.style.top = this.padding.top + this.size.height / 2 + 0.5 * dropzone_size;
 
     d3.select("#cbY") // combo box y
       .selectAll("option")
@@ -166,12 +164,12 @@ InterAxis = function (elemid, data, options) {
       });
     div = document.getElementById("cbY");
     div.style.left = 100;
-    // div.style.left = this.padding.left - dropSize - 220;
+    // div.style.left = this.padding.left - dropzone_size - 220;
     div.style.top = this.padding.top + this.size.height / 2;
     div = document.getElementById("cbX");
     div.style.left = 100;
-    // div.style.left = this.padding.left - dropSize - 220;;
-    div.style.top = this.padding.top + this.size.height / 2 + 0.5 * dropSize;
+    // div.style.left = this.padding.left - dropzone_size - 220;;
+    div.style.top = this.padding.top + this.size.height / 2 + 0.5 * dropzone_size;
   } else {
     var SC = d3.select(this.chart).select("svg")
       .attr("width", this.cx)
@@ -217,8 +215,8 @@ InterAxis.prototype.plot_drag = function () {
       var newpoint = {};
       newpoint.x = self.x.invert(Math.max(0, Math.min(self.size.width, p[0])));
       newpoint.y = self.y.invert(Math.max(0, Math.min(self.size.height, p[1])));
-      self.points.push(newpoint);
-      self.points.sort(function (a, b) {
+      self.data_points.push(newpoint);
+      self.data_points.sort(function (a, b) {
         if (a.x < b.x) {
           return -1
         };
@@ -239,7 +237,7 @@ InterAxis.prototype.update = function () {
   var self = this;
 
   var circle = this.vis.select("svg").selectAll("circle")
-    .data(this.points);
+    .data(this.data_points);
 
   circle.enter().append("circle")
     .attr("class", function (d) {
@@ -298,14 +296,12 @@ InterAxis.prototype.update = function () {
 InterAxis.prototype.datapoint_drag = function () {
   var self = this;
   return function (d) {
-    // registerKeyboardHandler(self.keydown());
     document.onselectstart = function () {
       return false;
     };
     self.selected = self.dragged = d;
     self.dragged.oldy = d.y;
     self.dragged.oldx = d.x;
-
     self.update();
   }
 };
@@ -322,13 +318,13 @@ InterAxis.prototype.mousemove = function () {
       // self.dragged.x = self.x.invert(Math.max(0, Math.min(self.size.width, p[0])));
       self.dragged.x = self.x.invert(p[0]);
 
-      if (-dropSize * 1.5 <= p[0] && p[0] <= -dropSize * 0.5 && 0 <= p[1] && p[1] <= dropSize) { // YH
+      if (-dropzone_size * 1.5 <= p[0] && p[0] <= -dropzone_size * 0.5 && 0 <= p[1] && p[1] <= dropzone_size) { // YH
         self.dropped = "YH";
-      } else if (-dropSize * 1.5 <= p[0] && p[0] <= -dropSize * 0.5 && self.size.height - dropSize <= p[1] && p[1] <= self.size.height) { // YL
+      } else if (-dropzone_size * 1.5 <= p[0] && p[0] <= -dropzone_size * 0.5 && self.size.height - dropzone_size <= p[1] && p[1] <= self.size.height) { // YL
         self.dropped = "YL";
-      } else if (0 <= p[0] && p[0] <= dropSize && self.size.height + dropSize * 0.5 <= p[1] && p[1] <= self.size.height + dropSize * 1.5) { // XL
+      } else if (0 <= p[0] && p[0] <= dropzone_size && self.size.height + dropzone_size * 0.5 <= p[1] && p[1] <= self.size.height + dropzone_size * 1.5) { // XL
         self.dropped = "XL";
-      } else if (self.size.width - dropSize <= p[0] && p[0] <= self.size.width && self.size.height + dropSize * 0.5 <= p[1] && p[1] <= self.size.height + dropSize * 1.5) { // XH
+      } else if (self.size.width - dropzone_size <= p[0] && p[0] <= self.size.width && self.size.height + dropzone_size * 0.5 <= p[1] && p[1] <= self.size.height + dropzone_size * 1.5) { // XH
         self.dropped = "XH";
       } else {
         self.dropped = null;
@@ -372,8 +368,8 @@ InterAxis.prototype.mouseup = function () {
           self.dropzone[self.dropped][self.dropzone[self.dropped].length] = self.dragged;
           d3.select("#" + self.dropped).selectAll("circle").remove();
 
-          var cx = +d3.select("#" + self.dropped).select("rect").attr("x") + 0.5 * dropSize,
-            cy = +d3.select("#" + self.dropped).select("rect").attr("y") + 0.5 * dropSize,
+          var cx = +d3.select("#" + self.dropped).select("rect").attr("x") + 0.5 * dropzone_size,
+            cy = +d3.select("#" + self.dropped).select("rect").attr("y") + 0.5 * dropzone_size,
             num = self.dropzone[self.dropped].length,
             dist = num == 1 ? 0 : 10.0 / Math.sin(Math.PI / num);
 
@@ -453,7 +449,7 @@ InterAxis.prototype.mouseup = function () {
 }
 
 updategraph = function (axistoUpdate, givenV, givenVchanged) {
-  data = graph.points;
+  data = graph.data_points;
   if (givenV == undefined) {
     var x1 = {},
       x0 = {};
@@ -479,8 +475,6 @@ updategraph = function (axistoUpdate, givenV, givenVchanged) {
       }
     }
 
-    // calculate new attr
-    // console.log("Getting new axis vector")
     var V = {},
       Vchanged = {},
       Verror = {},
@@ -532,7 +526,7 @@ updategraph = function (axistoUpdate, givenV, givenVchanged) {
 
   index = index + 1;
   var newxname = 'x' + index;
-  graph.points.forEach(function (d, i) {
+  graph.data_points.forEach(function (d, i) {
     d["coord"][newxname] = 0;
     for (var j = 0; j < attrLen; j++) {
       d["coord"][newxname] = d["coord"][newxname] + V[attr[j]] * d["coord"][attr[j]];
@@ -540,7 +534,6 @@ updategraph = function (axistoUpdate, givenV, givenVchanged) {
   });
 
   d3.select("#SC").remove();
-  d3.select("#" + axistoUpdate).remove();
   data.forEach(function (d) {
     d[axistoUpdate == "X" ? "x" : "y"] = d["coord"][newxname];
   });
@@ -551,7 +544,11 @@ updategraph = function (axistoUpdate, givenV, givenVchanged) {
     "init": false,
     "dropzone": graph.dropzone
   });
+  updateAxis(V, Verror, axistoUpdate, axis_options[axistoUpdate]);
+};
 
+function updateAxis(V, Verror, axistoUpdate, options) {
+  d3.select("#" + axistoUpdate).remove();
   var VV = [];
   for (var i = 0; i < attrLen; i++) {
     VV[i] = {
@@ -561,11 +558,11 @@ updategraph = function (axistoUpdate, givenV, givenVchanged) {
     };
   }
   if (axistoUpdate == "X") {
-    xaxis = new axis("#scplot", VV, axistoUpdate, axis_options[axistoUpdate]);
+    xaxis = new axis("#scplot", VV, axistoUpdate, options);
   } else {
-    yaxis = new axis("#scplot", VV, axistoUpdate, axis_options[axistoUpdate])
+    yaxis = new axis("#scplot", VV, axistoUpdate, options)
   }
-};
+}
 
 InterAxis.prototype.onZoom = function () {
   var self = this;
@@ -594,7 +591,7 @@ InterAxis.prototype.redraw = function () {
       fx = self.x.tickFormat(10),
       fy = self.y.tickFormat(10);
 
-    // Regenerate x-ticks…
+    // regenerate x-ticks
     var gx = self.vis.selectAll("g.x")
       .data(self.x.ticks(10), String)
       .attr("transform", tx);
@@ -625,7 +622,7 @@ InterAxis.prototype.redraw = function () {
 
     gx.exit().remove();
 
-    // Regenerate y-ticks…
+    // regenerate y-ticks
     var gy = self.vis.selectAll("g.y")
       .data(self.y.ticks(10), String)
       .attr("transform", ty);

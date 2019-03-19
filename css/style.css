@@ -1,10 +1,3 @@
-/* body {
-    text-align: center;
-    font-family: Georgia, "Times New Roman", Times, serif;
-    color: #545454;
-    font-size: 13pt;
-} */
-
 body {
     font: 12px Constantia, Baskerville;
 }
@@ -15,7 +8,6 @@ header {
 }
 
 #header {
-    /* background: #F1F1F1; */
     margin: 0 0 0.2em 0;
     border-bottom: thin solid #D4D4D4;
     padding: 10 40 40 40;
@@ -241,4 +233,149 @@ div .title {
 
 .addDiv {
     float: left;
+}
+
+svg {
+    font: 10px Constantia, Baskerville;
+}
+
+#X .x.axis {
+    font-family: Constantia, Baskerville;
+}
+
+#Y .x.axis {
+    font-family: Constantia, Baskerville;
+}
+
+#scplot {
+    background-color: #ffffff;
+    width: 100%;
+    height: 700px;
+}
+
+#SC .axis {
+    font-size: 1.5em;
+}
+
+#DROP rect {
+    stroke-width: 2;
+    stroke-opacity: 0.5;
+}
+
+#DROP rect.positive {
+    fill: #81e985;
+    stroke: #2ca02c;
+}
+
+#DROP rect.negative {
+    fill: #e98881;
+    stroke: #a02c2c;
+}
+
+#DROP rect:hover {
+    opacity: 0.5;
+}
+
+.bar.positive {
+    fill: #2ca02c;
+    opacity: 0.7;
+    padding-bottom: 1px;
+}
+
+.bar.negative {
+    fill: #a02c2c;
+    opacity: 0.7;
+    padding-bottom: 1px;
+}
+
+.dummy.dragBarTop {
+    fill: white;
+    opacity: 1;
+    cursor: ew-resize;
+    fill-opacity: 0.8;
+    stroke: grey;
+}
+
+.errorbar {
+    stroke: black;
+    stroke-width: 2;
+    opacity: 1;
+}
+
+td,
+th {
+    padding: 1px 4px;
+    word-wrap: break-word;
+}
+
+th {
+    white-space: nowrap;
+}
+
+table {
+    font: 14px sans-serif;
+    border-collapse: collapse;
+    table-layout: fixed;
+    width: 360px;
+}
+
+
+ul {
+    list-style-type: none;
+    margin: 0.5em 0em 0.5em 0em;
+    width: 100%;
+}
+
+ul li {
+    display: table-cell;
+    vertical-align: middle;
+    margin: 0em;
+    padding: 0em 1em;
+}
+
+circle {
+    fill: #63cbd3;
+    stroke: #3388c5;
+    fill-opacity: 0.2;
+    stroke-width: 1.2px;
+    stroke-opacity: 0.5;
+    cursor: move;
+}
+
+circle.positive_dropped {
+    fill: #81e985;
+    stroke: #2ca02c;
+    fill-opacity: 0.5;
+}
+
+circle.negative_dropped {
+    fill: #e98881;
+    stroke: #a02c2c;
+    fill-opacity: 0.5;
+}
+
+circle.highlighted {
+    stroke: black;
+    stroke-width: 2.5px;
+    fill-opacity: 1;
+}
+
+circle.searchRes {
+    fill: #dd9001;
+    stroke: #9e8203;
+    stroke-width: 2.5px;
+}
+
+circle:hover {
+    stroke: black;
+    stroke-width: 2.5px;
+    fill-opacity: 1;
+}
+
+#SC rect {
+    fill: #ffffff;
+}
+
+#SC line {
+    stroke: #cccccc;
 }
